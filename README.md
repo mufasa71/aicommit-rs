@@ -1,4 +1,4 @@
-# aicomment-rs (in development)
+# aicomment-rs 🔨 (in progress)
 
 Using Google Gemini to generate git comments.
 
@@ -28,4 +28,4 @@ gemini_api_key = ""
 
 ```
 
-Follow instructions to get your API key from [Google Gemini] (<https://ai.google.dev/gemini-api/docs/quickstart>)
+Follow instructions to get your API key from [Google Gemini](<https://ai.google.dev/gemini-api/docs/quickstart>)
