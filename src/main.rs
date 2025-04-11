@@ -22,8 +22,8 @@ async fn main() {
                     Ok(template) => {
                         let result = generate_commit(
                             template.replace("{{diff}}", &diff),
-                            config.openai_api_key,
-                            config.openai_api_url,
+                            config.gemini_api_key,
+                            config.gemini_api_url,
                         )
                         .await;
 
