@@ -20,12 +20,8 @@ async fn main() {
             if let Some(config) = get_config() {
                 match read_template() {
                     Ok(template) => {
-                        let result = generate_commit(
-                            template.replace("{{diff}}", &diff),
-                            config.gemini_api_key,
-                            config.gemini_api_url,
-                        )
-                        .await;
+                        let result =
+                            generate_commit(template.replace("{{diff}}", &diff), config).await;
 
                         match result {
                             Ok(commit_message) => println!("{}", commit_message),

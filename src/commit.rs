@@ -6,6 +6,8 @@ use openai_api_rs::v1::{
     chat_completion::{self, ChatCompletionRequest},
 };
 
+use crate::config::Config;
+
 const TEMPLATE_FILE_NAME: &str = ".aicommit-template";
 
 pub fn read_template() -> std::io::Result<String> {
@@ -24,19 +26,16 @@ pub fn read_template() -> std::io::Result<String> {
 
 pub async fn generate_commit(
     content: String,
-    api_key: String,
-    api_url: String,
+    config: Config,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    let model = "gemini-2.0-flash";
     let system_message = "You are a commit message generator. I will provide you with a git diff, and I would like you to generate an appropriate commit message using the conventional commit format. Do not write any explanations or other words, just reply with the commit message.";
-
     let mut client = OpenAIClient::builder()
-        .with_endpoint(api_url)
-        .with_api_key(api_key)
+        .with_endpoint(config.gemini_api_url)
+        .with_api_key(config.gemini_api_key)
         .build()?;
 
     let req = ChatCompletionRequest::new(
-        model.to_string(),
+        config.model_name,
         vec![
             chat_completion::ChatCompletionMessage {
                 role: chat_completion::MessageRole::system,

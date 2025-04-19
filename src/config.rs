@@ -7,6 +7,7 @@ use serde::Deserialize;
 pub struct Config {
     pub gemini_api_key: String,
     pub gemini_api_url: String,
+    pub model_name: String,
 }
 
 const CONFIG_FILE_NAME: &str = ".aicommit.toml";
