@@ -13,9 +13,7 @@ pub struct Config {
 const CONFIG_FILE_NAME: &str = ".aicommit.toml";
 
 pub fn get_config() -> Option<Config> {
-    let home_path = dirs::home_dir();
-
-    match home_path {
+    match dirs::home_dir() {
         Some(path) => {
             let mut config_str = String::new();
 

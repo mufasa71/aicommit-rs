@@ -1,8 +1,30 @@
-use aicomment_rs::{
+use std::{fs::File, path::PathBuf};
+
+use aicommit_rs::{
     commit::{generate_commit, read_template},
     config::get_config,
     diff::get_diff,
 };
+use clap::{Command, ValueHint, arg, value_parser};
+
+fn build_cli() -> Command {
+    let mut template_path = dirs::home_dir().expect("home dir expected");
+    template_path.push(".aicommit-template");
+
+    Command::new("aicommit-rs")
+        .version("0.0.4")
+        .about("Uses OpenAI or Google AI to generate commit message suggestions based on the diff between the current branch and master.
+Then, you can select a commit message from the list and use it to commit your changes.")
+        .next_line_help(true)
+        .arg(
+            arg!(-t --template <FILE> "specify custom template")
+                .value_hint(ValueHint::AnyPath)
+                .default_value(template_path.into_os_string())
+                .required(false)
+                .value_parser(value_parser!(PathBuf)),
+        )
+        .arg(arg!(--usage "Show usage").required(false))
+}
 
 #[derive(Debug)]
 enum ErrorCode {
@@ -13,31 +35,43 @@ enum ErrorCode {
 
 #[tokio::main]
 async fn main() {
+    let matches = build_cli().get_matches();
+
+    if matches.get_flag("usage") {
+        let mut cmd = build_cli();
+        eprintln!("Generating usage spec...");
+        let mut kdl_file =
+            File::create("docs/aicommit-rs.usage.kdl").expect("failed to create usage.txt");
+        clap_usage::generate(&mut cmd, "aicommit-rs", &mut kdl_file);
+        return;
+    }
+
     let mut error_code: Option<ErrorCode> = None;
 
-    match get_diff() {
-        Ok(diff) => {
-            if let Some(config) = get_config() {
-                match read_template() {
-                    Ok(template) => {
-                        let result =
-                            generate_commit(template.replace("{{diff}}", &diff), config).await;
+    if let Some(config) = get_config() {
+        match get_diff() {
+            Ok(diff) => match read_template(
+                matches
+                    .get_one::<PathBuf>("template")
+                    .expect("no default template provided"),
+            ) {
+                Ok(template) => {
+                    let result = generate_commit(template.replace("{{diff}}", &diff), config).await;
 
-                        match result {
-                            Ok(commit_message) => println!("{}", commit_message),
-                            Err(_) => {
-                                error_code = Some(ErrorCode::GeneratingCommit);
-                            }
+                    match result {
+                        Ok(commit_message) => println!("{}", commit_message),
+                        Err(_) => {
+                            error_code = Some(ErrorCode::GeneratingCommit);
                         }
                     }
-                    Err(_) => {
-                        error_code = Some(ErrorCode::ReadingTemplate);
-                    }
                 }
+                Err(_) => {
+                    error_code = Some(ErrorCode::ReadingTemplate);
+                }
+            },
+            Err(_) => {
+                error_code = Some(ErrorCode::GettingDiff);
             }
-        }
-        Err(_) => {
-            error_code = Some(ErrorCode::GettingDiff);
         }
     }
 
@@ -54,4 +88,9 @@ async fn main() {
             }
         }
     }
+}
+
+#[test]
+fn verify_cmd() {
+    build_cli().debug_assert();
 }

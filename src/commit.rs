@@ -1,5 +1,5 @@
-use std::fs::File;
 use std::io::Read;
+use std::{fs::File, path::PathBuf};
 
 use openai_api_rs::v1::{
     api::OpenAIClient,
@@ -8,20 +8,14 @@ use openai_api_rs::v1::{
 
 use crate::config::Config;
 
-const TEMPLATE_FILE_NAME: &str = ".aicommit-template";
+pub fn read_template(template_file: &PathBuf) -> std::io::Result<String> {
+    let file = File::open(template_file)?;
+    let mut reader = std::io::BufReader::new(file);
+    let mut contents = String::new();
 
-pub fn read_template() -> std::io::Result<String> {
-    if let Some(path) = dirs::home_dir() {
-        let file = File::open(path.join(TEMPLATE_FILE_NAME))?;
-        let mut reader = std::io::BufReader::new(file);
-        let mut contents = String::new();
+    reader.read_to_string(&mut contents)?;
 
-        reader.read_to_string(&mut contents)?;
-
-        Ok(contents)
-    } else {
-        Ok(String::new())
-    }
+    Ok(contents)
 }
 
 pub async fn generate_commit(

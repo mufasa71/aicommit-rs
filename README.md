@@ -1,8 +1,8 @@
-# aicomment-rs 🔨 (in progress)
+# aicommit-rs 🔨 (in progress)
 
 Using Google Gemini to generate git comments.
 
-Read `examples/aicomment-template` to understand what exactly is generated.
+Read `examples/aicommit-template` to understand what exactly is generated.
 
 ## Installation
 
@@ -14,18 +14,24 @@ cargo build --path .
 
 Add `~/.cargo/bin/` into your PATH.
 
-Copy `aicomment.toml` and `aicomment-template` into your home directory:
+Copy `aicommit.toml` and `aicommit-template` into your home directory:
 
 ```bash
-cp examples/aicomment.toml ~/.aicomment.toml
-cp examples/aicomment-template ~/.aicomment-template
+cp examples/aicommit.toml ~/.aicommit.toml
+cp examples/aicommit-template ~/.aicommit-template
 ```
 
-Replace `~/.aicomment.toml` with your own configuration file.
+Replace `~/.aicommit.toml` with your own configuration file.
 
 ```bash
 gemini_api_key = ""
+gemini_api_url = "https://generativelanguage.googleapis.com/v1beta/openai"
+model_name = "gemini-2.0-flash"
 
 ```
 
 Follow instructions to get your API key from [Google Gemini](<https://ai.google.dev/gemini-api/docs/quickstart>)
+
+## Usage
+
+Read [docs/usage.md](docs/usage.md) for more information.
