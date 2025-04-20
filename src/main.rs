@@ -12,7 +12,7 @@ fn build_cli() -> Command {
     template_path.push(".aicommit-template");
 
     Command::new("aicommit-rs")
-        .version("0.0.4")
+        .version("0.0.6")
         .about("Uses OpenAI or Google AI to generate commit message suggestions based on the diff between the current branch and master.
 Then, you can select a commit message from the list and use it to commit your changes.")
         .next_line_help(true)
