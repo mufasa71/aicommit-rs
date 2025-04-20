@@ -1,4 +1,4 @@
-use std::{fs::File, path::PathBuf};
+use std::path::PathBuf;
 
 use aicommit_rs::{
     commit::{generate_commit, read_template},
@@ -12,12 +12,12 @@ fn build_cli() -> Command {
     template_path.push(".aicommit-template");
 
     Command::new("aicommit-rs")
-        .version("0.0.6")
+        .version("0.0.7")
         .about("Uses OpenAI or Google AI to generate commit message suggestions based on the diff between the current branch and master.
 Then, you can select a commit message from the list and use it to commit your changes.")
         .next_line_help(true)
         .arg(
-            arg!(-t --template <FILE> "specify custom template")
+            arg!(-t --template <FILE> "Specify a custom template")
                 .value_hint(ValueHint::AnyPath)
                 .default_value(template_path.into_os_string())
                 .required(false)
@@ -40,9 +40,7 @@ async fn main() {
     if matches.get_flag("usage") {
         let mut cmd = build_cli();
         eprintln!("Generating usage spec...");
-        let mut kdl_file =
-            File::create("docs/aicommit-rs.usage.kdl").expect("failed to create usage.txt");
-        clap_usage::generate(&mut cmd, "aicommit-rs", &mut kdl_file);
+        clap_usage::generate(&mut cmd, "aicommit-rs", &mut std::io::stdout());
         return;
     }
 
