@@ -26,13 +26,6 @@ Then, you can select a commit message from the list and use it to commit your ch
         .arg(arg!(--usage "Show usage").required(false))
 }
 
-#[derive(Debug)]
-enum ErrorCode {
-    ReadingTemplate,
-    GeneratingCommit,
-    GettingDiff,
-}
-
 #[tokio::main]
 async fn main() {
     let matches = build_cli().get_matches();
@@ -44,48 +37,20 @@ async fn main() {
         return;
     }
 
-    let mut error_code: Option<ErrorCode> = None;
+    let config = get_config().expect("No config found");
+    let diff = get_diff().expect("Error getting diff");
+    let template = read_template(
+        matches
+            .get_one::<PathBuf>("template")
+            .expect("No default template provided"),
+    )
+    .expect("Failed to read template");
 
-    if let Some(config) = get_config() {
-        match get_diff() {
-            Ok(diff) => match read_template(
-                matches
-                    .get_one::<PathBuf>("template")
-                    .expect("no default template provided"),
-            ) {
-                Ok(template) => {
-                    let result = generate_commit(template.replace("{{diff}}", &diff), config).await;
+    let result = generate_commit(template.replace("{{diff}}", &diff), config)
+        .await
+        .expect("Error generating commit");
 
-                    match result {
-                        Ok(commit_message) => println!("{}", commit_message),
-                        Err(_) => {
-                            error_code = Some(ErrorCode::GeneratingCommit);
-                        }
-                    }
-                }
-                Err(_) => {
-                    error_code = Some(ErrorCode::ReadingTemplate);
-                }
-            },
-            Err(_) => {
-                error_code = Some(ErrorCode::GettingDiff);
-            }
-        }
-    }
-
-    if let Some(ec) = error_code {
-        match ec {
-            ErrorCode::ReadingTemplate => {
-                println!("Error reading template file");
-            }
-            ErrorCode::GeneratingCommit => {
-                println!("Error generating commit message");
-            }
-            ErrorCode::GettingDiff => {
-                println!("Error getting diff");
-            }
-        }
-    }
+    println!("{}", result);
 }
 
 #[test]

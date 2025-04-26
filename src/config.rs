@@ -33,16 +33,9 @@ pub fn get_config() -> Option<Config> {
                 }
             }
 
-            let config: Result<Config, toml::de::Error> = toml::from_str(&config_str);
+            let config: Config = toml::from_str(&config_str).expect("Failed to parse config file");
 
-            match config {
-                Ok(config) => Some(config),
-                Err(e) => {
-                    println!("Error parsing config file: {}", e);
-
-                    None
-                }
-            }
+            Some(config)
         }
         None => None,
     }
