@@ -5,14 +5,14 @@ use aicommit_rs::{
     config::get_config,
     diff::get_diff,
 };
-use clap::{Command, ValueHint, arg, value_parser};
+use clap::{Command, ValueHint, arg, crate_version, value_parser};
 
 fn build_cli() -> Command {
     let mut template_path = dirs::home_dir().expect("home dir expected");
     template_path.push(".aicommit-template");
 
     Command::new("aicommit-rs")
-        .version("0.0.7")
+        .version(crate_version!())
         .about("Uses OpenAI or Google AI to generate commit message suggestions based on the diff between the current branch and master.
 Then, you can select a commit message from the list and use it to commit your changes.")
         .next_line_help(true)
