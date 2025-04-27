@@ -37,7 +37,7 @@ async fn main() {
         return;
     }
 
-    let config = get_config().expect("No config found");
+    let config = get_config();
     let diff = get_diff().expect("Error getting diff");
     let template = read_template(
         matches

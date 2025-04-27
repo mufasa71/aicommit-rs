@@ -12,31 +12,14 @@ pub struct Config {
 
 const CONFIG_FILE_NAME: &str = ".aicommit.toml";
 
-pub fn get_config() -> Option<Config> {
-    match dirs::home_dir() {
-        Some(path) => {
-            let mut config_str = String::new();
+pub fn get_config() -> Config {
+    let path = dirs::home_dir().expect("Home dir not found");
+    let mut config_file = File::open(path.join(CONFIG_FILE_NAME)).expect("Config file not found");
+    let mut config_str = String::new();
+    config_file
+        .read_to_string(&mut config_str)
+        .expect("Error reading config file");
+    let config: Config = toml::from_str(&config_str).expect("Failed to parse config file");
 
-            let config_file = File::open(path.join(CONFIG_FILE_NAME));
-
-            match config_file {
-                Ok(mut file) => match file.read_to_string(&mut config_str) {
-                    Ok(_) => {}
-                    Err(e) => {
-                        println!("Error reading config file: {}", e);
-                        return None;
-                    }
-                },
-                Err(_) => {
-                    println!("Config file not found");
-                    return None;
-                }
-            }
-
-            let config: Config = toml::from_str(&config_str).expect("Failed to parse config file");
-
-            Some(config)
-        }
-        None => None,
-    }
+    config
 }
